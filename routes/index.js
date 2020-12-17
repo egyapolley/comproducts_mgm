@@ -73,7 +73,7 @@ router.get("/code", passport.authenticate('basic', {
                 reason: error.message
             })
         }
-        const {subscriberNumber, channel} = req.query;
+        const {subscriberNumber:msisdn, channel} = req.query;
         if (channel.toLowerCase() !== req.user.channel) {
             return res.json({
                 status: 2,
@@ -81,68 +81,70 @@ router.get("/code", passport.authenticate('basic', {
             })
 
         }
-        let msisdn = subscriberNumber;
         let finalcode = null;
         let code_expiry = null;
         let now = moment();
         let date_expiry = moment().add(30, "days");
-        let referral = await Referral.findOne({where: {msisdn}});
-        if (referral) {
-            let voucherCodes = await referral.getVoucher_codes({
-                where: {
-                    [Op.and]: [
-                        {
-                            date_expiry: {
-                                [Op.gte]: now
-                            },
-                        },
-                        {
-                            NumbOfActivatedRefs: {
-                                [Op.lt]: 2
-
-                            }
-                        }
-                    ]
-                }
-            });
-            if (voucherCodes.length > 0) {
-                finalcode = voucherCodes[0].code;
-                code_expiry = voucherCodes[0].date_expiry;
-
-            } else {
-                let createCode = await referral.createVoucher_code({
-                    code: generateRandom(),
-                    date_expiry: date_expiry,
-                    status: "INACTIVE",
-                    channel: channel,
-
-                })
-                if (createCode) {
-                    finalcode = createCode.code;
-                    code_expiry = createCode.date_expiry;
-                }
-            }
-
-        } else {
-            const createCode = await sequelize.transaction(async (t) => {
-                let referral = await Referral.create({msisdn}, {transaction: t});
-
-                return await referral.createVoucher_code({
-                    code: generateRandom(),
-                    date_expiry: date_expiry,
-                    status: "INACTIVE",
-                    channel: channel
-                }, {transaction: t});
-
-
-            })
-
-            finalcode = createCode.code;
-            code_expiry = createCode.date_expiry;
-        }
 
         let result = await getContact(msisdn);
-        if (result && result.contact) {
+
+        if (result && result.contact){
+
+            let referral = await Referral.findOne({where: {msisdn}});
+            if (referral) {
+                let voucherCodes = await referral.getVoucher_codes({
+                    where: {
+                        [Op.and]: [
+                            {
+                                date_expiry: {
+                                    [Op.gte]: now
+                                },
+                            },
+                            {
+                                NumbOfActivatedRefs: {
+                                    [Op.lt]: 2
+
+                                }
+                            }
+                        ]
+                    }
+                });
+                if (voucherCodes.length > 0) {
+                    finalcode = voucherCodes[0].code;
+                    code_expiry = voucherCodes[0].date_expiry;
+
+                } else {
+                    let createCode = await referral.createVoucher_code({
+                        code: generateRandom(),
+                        date_expiry: date_expiry,
+                        status: "INACTIVE",
+                        channel: channel,
+
+                    })
+                    if (createCode) {
+                        finalcode = createCode.code;
+                        code_expiry = createCode.date_expiry;
+                    }
+                }
+
+            } else {
+                const createCode = await sequelize.transaction(async (t) => {
+                    let referral = await Referral.create({msisdn}, {transaction: t});
+
+                    return await referral.createVoucher_code({
+                        code: generateRandom(),
+                        date_expiry: date_expiry,
+                        status: "INACTIVE",
+                        channel: channel
+                    }, {transaction: t});
+
+
+                })
+
+                finalcode = createCode.code;
+                code_expiry = createCode.date_expiry;
+            }
+
             let smsContent = `Your Code is ${finalcode} and is valid until ${moment(code_expiry).format('DD-MM-YYYY HH:mm:ss')}. Share this code with two of your friends to enjoy 50GHC CASH DISCOUNT when they buy a Surfline device with this code`;
             let to_msisdn = result.contact;
             const url = "http://api.hubtel.com/v1/messages/";
@@ -169,7 +171,6 @@ router.get("/code", passport.authenticate('basic', {
                     res.json({
                         status: 0,
                         reason: "success",
-                        code: finalcode,
                         phoneContact: to_msisdn
                     })
                 }).catch(function (error) {
@@ -177,22 +178,19 @@ router.get("/code", passport.authenticate('basic', {
                 res.json({
                     status: 0,
                     reason: "success",
-                    code: finalcode,
                     phoneContact: to_msisdn
                 })
 
             });
-
-
-        } else {
+        }else {
             res.json({
-                status: 0,
-                reason: "success",
-                code: finalcode,
-                phoneContact: null,
+                status: 1,
+                reason: `${msisdn} is not valid`
             })
 
         }
+
+
 
 
     } catch (error) {
