@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="af55e432-3c7f-41af-9f37-9863d0422595" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
     </list>
@@ -66,12 +67,27 @@
       <workItem from="1607035214100" duration="39323000" />
       <workItem from="1607174346260" duration="16691000" />
       <workItem from="1607413481948" duration="28798000" />
-      <workItem from="1608225611406" duration="2223000" />
+      <workItem from="1608225611406" duration="2403000" />
+      <workItem from="1608288528602" duration="2787000" />
     </task>
+    <task id="LOCAL-00001" summary="Updated Get code to check account status First">
+      <created>1608227910499</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1608227910499</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Updated Get code to check account status First" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated Get code to check account status First" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

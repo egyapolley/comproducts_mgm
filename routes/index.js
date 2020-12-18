@@ -73,7 +73,7 @@ router.get("/code", passport.authenticate('basic', {
                 reason: error.message
             })
         }
-        const {subscriberNumber:msisdn, channel} = req.query;
+        const {subscriberNumber: msisdn, channel} = req.query;
         if (channel.toLowerCase() !== req.user.channel) {
             return res.json({
                 status: 2,
@@ -88,7 +88,7 @@ router.get("/code", passport.authenticate('basic', {
 
         let result = await getContact(msisdn);
 
-        if (result && result.contact){
+        if (result && result.contact) {
 
             let referral = await Referral.findOne({where: {msisdn}});
             if (referral) {
@@ -182,15 +182,13 @@ router.get("/code", passport.authenticate('basic', {
                 })
 
             });
-        }else {
+        } else {
             res.json({
                 status: 1,
                 reason: `${msisdn} is not valid`
             })
 
         }
-
-
 
 
     } catch (error) {
@@ -291,7 +289,7 @@ router.post("/code", passport.authenticate('basic', {
 
             if (activatedToday) {
 
-                let discountReferral="no";
+                let discountReferral = "no";
 
                 await sequelize.transaction(async (t) => {
 
@@ -300,15 +298,15 @@ router.post("/code", passport.authenticate('basic', {
                         channel: channel,
                     }, {transaction: t});
                     voucherCode.status = "ACTIVE";
-                    voucherCode.NumbOfActivatedRefs = (voucherCode.NumbOfActivatedRefs <2)?(voucherCode.NumbOfActivatedRefs + 1):2;
-                    if (voucherCode.NumbOfActivatedRefs === 2){
-                        discountReferral="yes";
-                        voucherCode.status ="REDEEMED";
+                    voucherCode.NumbOfActivatedRefs = (voucherCode.NumbOfActivatedRefs < 2) ? (voucherCode.NumbOfActivatedRefs + 1) : 2;
+                    if (voucherCode.NumbOfActivatedRefs === 2) {
+                        discountReferral = "yes";
+                        voucherCode.status = "REDEEMED";
                     }
                     await voucherCode.save({transaction: t});
                 })
 
-                if (await notifyIN(subscriberNumber, referralMsisdn, code,discountReferral )) {
+                if (await notifyIN(subscriberNumber, referralMsisdn, code, discountReferral)) {
                     res.json({status: 0, reason: "success"})
 
                 } else {
@@ -340,8 +338,8 @@ router.post("/code", passport.authenticate('basic', {
     } catch (error) {
         console.log(error);
         let errorType = error.errors[0].type;
-        let errorMessage ="System Failure";
-        if (errorType.includes("unique")) errorMessage =`${subscriberNumber} has already been referred`;
+        let errorMessage = "System Failure";
+        if (errorType.includes("unique")) errorMessage = `${subscriberNumber} has already been referred`;
         res.json({
             status: 1,
             reason: errorMessage
@@ -377,7 +375,7 @@ router.get("/codeinfo", passport.authenticate('basic', {
             finalCodeInfo.date_expiry = moment(codedb.date_expiry).format("DD-MM-YYYY HH:mm:ss");
             finalCodeInfo.referral = codedb.referral.msisdn;
             finalCodeInfo.referreds = "";
-            finalCodeInfo.status = codedb.status === 'INACTIVE' && moment().isSameOrAfter(moment(codedb.date_expiry)) ?"EXPIRED" : codedb.status;
+            finalCodeInfo.status = codedb.status === 'INACTIVE' && moment().isSameOrAfter(moment(codedb.date_expiry)) ? "EXPIRED" : codedb.status;
 
             if (codedb.referreds.length > 0) {
                 const referredString = []
@@ -632,7 +630,7 @@ async function getReferredAcctInfo(msisdn) {
 
 }
 
-async function notifyIN(referred_msisdn, referral_msisdn,code, discountReferral) {
+async function notifyIN(referred_msisdn, referral_msisdn, code, discountReferral) {
     const url = "http://172.25.39.16:2222";
     const sampleHeaders = {
         'User-Agent': 'NodeApp',
@@ -676,41 +674,35 @@ async function notifyIN(referred_msisdn, referral_msisdn,code, discountReferral)
 async function getContact(msisdn) {
 
     try {
-        const url = "http://172.25.39.13:3003";
+        const url = "http://172.25.39.16:2222";
         const sampleHeaders = {
             'User-Agent': 'NodeApp',
             'Content-Type': 'text/xml;charset=UTF-8',
-            'SOAPAction': 'urn:CCSCD9_QRY',
+            'SOAPAction': 'http://SCLINSMSVM01P/wsdls/Surfline/MGMGetReferralAcctInfo/MGMGetReferralAcctInfo',
+            'Authorization': 'Basic YWlhb3NkMDE6YWlhb3NkMDE='
         };
 
-        let xmlBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:pi="http://xmlns.oracle.com/communications/ncc/2009/05/15/pi">
+        let xmlBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mgm="http://SCLINSMSVM01P/wsdls/Surfline/MGMGetReferralAcctInfo.wsdl">
    <soapenv:Header/>
    <soapenv:Body>
-      <pi:CCSCD9_QRY>
-         <pi:AUTH/>
-         <pi:username>admin</pi:username>
-         <pi:password>admin</pi:password>
-         <pi:MSISDN>${msisdn}</pi:MSISDN>
-         <pi:TAG>AltSMSNotifNo</pi:TAG>
-      </pi:CCSCD9_QRY>
+      <mgm:MGMGetReferralAcctInfoRequest>
+         <CC_Calling_Party_Id>${msisdn}</CC_Calling_Party_Id>
+      </mgm:MGMGetReferralAcctInfoRequest>
    </soapenv:Body>
 </soapenv:Envelope>`;
 
 
-        const {response} = await soapRequest({url: url, headers: sampleHeaders, xml: xmlBody, timeout: 5000}); // Optional timeout parameter(milliseconds)
+        const {response} = await soapRequest({url: url, headers: sampleHeaders, xml: xmlBody, timeout: 5000});
         const {body} = response;
         let jsonObj = parser.parse(body, options);
+        let jsonResult = jsonObj.Envelope.Body;
         let result = {}
-        if (jsonObj.Envelope.Body.CCSCD9_QRYResponse && jsonObj.Envelope.Body.CCSCD9_QRYResponse.TAGS && jsonObj.Envelope.Body.CCSCD9_QRYResponse.TAGS.TAG) {
-            let contactJsonResult = jsonObj.Envelope.Body.CCSCD9_QRYResponse.TAGS.TAG;
-            result.contact = contactJsonResult.VALUE;
+        if (jsonResult.MGMGetReferralAcctInfoResult && jsonResult.MGMGetReferralAcctInfoResult.Result) {
+            result.contact = jsonResult.MGMGetReferralAcctInfoResult.Result
             result.success = true;
 
 
         } else {
-            let soapFault = jsonObj.Envelope.Body.Fault;
-            let faultString = soapFault.faultstring;
-            console.log(faultString)
             result.contact = null;
             result.success = false;
 
@@ -718,7 +710,7 @@ async function getContact(msisdn) {
         return result;
 
     } catch (error) {
-        console.log(error)
+        console.log(error.toString())
         return {
             contact: null,
             success: false,
