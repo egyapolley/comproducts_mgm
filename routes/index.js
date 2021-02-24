@@ -168,6 +168,8 @@ router.get("/code", passport.authenticate('basic', {
                 {headers: headers})
                 .then(function (response) {
                     console.log(response.data);
+                    to_msisdn = to_msisdn.toString();
+                    to_msisdn = `${to_msisdn.substring(0, 6)}***${to_msisdn.substring(to_msisdn.length - 3)}`;
                     res.json({
                         status: 0,
                         reason: "success",
@@ -175,6 +177,8 @@ router.get("/code", passport.authenticate('basic', {
                     })
                 }).catch(function (error) {
                 console.log(error);
+                to_msisdn = to_msisdn.toString();
+                to_msisdn = `${to_msisdn.substring(0, 6)}***${to_msisdn.substring(to_msisdn.length - 3)}`;
                 res.json({
                     status: 0,
                     reason: "success",

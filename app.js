@@ -38,7 +38,7 @@ mongoose.connect("mongodb://localhost/comOffer_MGM", {
             app.use(express.urlencoded({extended: false}));
 
 
-            let PORT = process.env.PORT || 8000;
+            let PORT = process.env.PORT || 5200;
             let HOST = process.env.PROD_HOST;
 
             if (process.env.NODE_ENV === "development") {
