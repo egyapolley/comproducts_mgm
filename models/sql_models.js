@@ -32,7 +32,6 @@ const Voucher_Code = sequelize.define("voucher_code", {
         type:Sequelize.STRING,
         unique:true,
         allowNull: false,
-
     },
 
     status : {

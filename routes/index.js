@@ -8,6 +8,10 @@ const BasicStrategy = require("passport-http").BasicStrategy;
 const Referral = require("../models/sql_models").Referral;
 const Voucher_Code = require("../models/sql_models").Voucher_Code;
 const Referred = require("../models/sql_models").Referred;
+
+const Inf = require("../models/sql_models_Influencers").Referral
+const Inf_Referred = require("../models/sql_models_Influencers").Referred
+
 const moment = require("moment");
 const {Op} = require("sequelize");
 const sequelize = require("../utils/sql_database");
@@ -207,9 +211,7 @@ router.get("/code", passport.authenticate('basic', {
 
 });
 
-router.post("/code", passport.authenticate('basic', {
-    session: false
-}), async (req, res) => {
+router.post("/code", passport.authenticate('basic', {session: false}), redeemInf, async (req, res) => {
     const {subscriberNumber, channel, code} = req.body;
     try {
         const {error} = validator.validateRedeemCode({subscriberNumber, channel, code});
@@ -241,12 +243,6 @@ router.post("/code", passport.authenticate('basic', {
                     {
                         code: code
                     },
-                    {
-                        NumbOfActivatedRefs: {
-                            [Op.lt]: 2
-
-                        }
-                    }
 
                 ]
             },
@@ -293,7 +289,7 @@ router.post("/code", passport.authenticate('basic', {
 
             if (activatedToday) {
 
-                let discountReferral = "no";
+                let discountReferral = "yes";
 
                 await sequelize.transaction(async (t) => {
 
@@ -302,11 +298,7 @@ router.post("/code", passport.authenticate('basic', {
                         channel: channel,
                     }, {transaction: t});
                     voucherCode.status = "ACTIVE";
-                    voucherCode.NumbOfActivatedRefs = (voucherCode.NumbOfActivatedRefs < 2) ? (voucherCode.NumbOfActivatedRefs + 1) : 2;
-                    if (voucherCode.NumbOfActivatedRefs === 2) {
-                        discountReferral = "yes";
-                        voucherCode.status = "REDEEMED";
-                    }
+                    voucherCode.NumbOfActivatedRefs = voucherCode.NumbOfActivatedRefs +1
                     await voucherCode.save({transaction: t});
                 })
 
@@ -467,7 +459,6 @@ router.get("/subref", passport.authenticate('basic', {
                 status: 0,
                 reason: "success",
                 data: finalResult
-
             })
 
         } else {
@@ -492,60 +483,6 @@ router.get("/subref", passport.authenticate('basic', {
 
 });
 
-/*router.post("/updateRef", async (req, res) => {
-    try {
-        const {error} = validator.validateSubscriberNumber(req.body);
-        if (error) {
-            return res.json({
-                status: 2,
-                reason: error.message
-            })
-        }
-        const {subscriberNumber} = req.body;
-        const referred = await Referred.findOne({
-            where: {msisdn: subscriberNumber, status:'INACTIVE'},
-        });
-
-
-        if (referred){
-            const result = await sequelize.transaction(async (t) => {
-                referred.status = 'ACTIVE';
-                const voucherCode = await referred.getVoucher_code();
-                console.log(voucherCode)
-                voucherCode.status = 'REDEEMED';
-                voucherCode.NumOfActiveRefs = voucherCode.NumOfActiveRefs <2?voucherCode.NumOfActiveRefs+1:2;
-                await referred.save({transaction: t});
-                return await voucherCode.save({transaction: t})
-            })
-
-            if (result) {
-                res.json({status: 0, reason: "reason"})
-
-            } else {
-                res.json({status: 1, reason: "error"})
-
-            }
-
-        }else {
-            res.json({status: 1, reason: "error"})
-
-        }
-
-
-
-    } catch (error) {
-        console.log(error);
-        res.json({
-            status: 1,
-            reason: "System failure"
-        })
-
-    }
-
-
-});*/
-
-
 router.post("/user", async (req, res) => {
     try {
         let {username, password, channel} = req.body;
@@ -565,6 +502,211 @@ router.post("/user", async (req, res) => {
 });
 
 
+//Influences Routes
+
+router.get("/code_inf", passport.authenticate('basic', {
+    session: false
+}), async (req, res) => {
+    const {code, firstName, lastName, channel, subscriberNumber} = req.query;
+    try {
+
+        const {error} = validator.validateGetCode_Inf(req.query);
+        if (error) {
+            return res.json({
+                status: 2,
+                reason: error.message
+            })
+        }
+        if (channel.toLowerCase() !== req.user.channel) {
+            return res.json({
+                status: 2,
+                reason: `Invalid Request channel ${channel}`
+            })
+
+        }
+        let referral = await Inf.findOne({where: {code}});
+        if (referral) {
+            return res.json({
+                status: 1,
+                message: `Code Already assigned`,
+                referral
+            })
+
+        } else {
+            let referral2 = await Inf.create({
+                firstName,
+                lastName,
+                code,
+                surflineNumber: subscriberNumber
+            })
+            if (referral2) {
+                return res.json({
+                    status: 0,
+                    message: "success",
+                    referral: referral2
+                })
+            }
+
+        }
+
+
+    } catch (error) {
+        console.log(error);
+        let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique")?`${subscriberNumber} already assigned`:"System Error"
+        res.json({
+            status: 1,
+            reason: message
+        })
+
+    }
+
+
+});
+
+router.get("/all_inf",  passport.authenticate('basic', {
+    session: false
+}),async (req, res) => {
+    try {
+        const referrals = await Inf.findAll({})
+        if (referrals) {
+            if (referrals.length > 0 ){
+                referrals.sort((a,b) =>a.NumbOfActivatedRefs - b.NumbOfActivatedRefs)
+            }
+            res.json({
+                status: 0,
+                reason: "success",
+                data: referrals
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        res.json({
+            status:1,
+            reason:"System failure"
+        })
+    }
+})
+
+
+async function redeemInf(req, res, next) {
+    const {subscriberNumber, channel, code} = req.body;
+
+    if (code.includes('0')) {
+        try {
+            const {error} = validator.validateRedeemCode_Inf({subscriberNumber, channel, code});
+            if (error) {
+                return res.json({
+                    status: 2,
+                    reason: error.message
+                })
+            }
+
+
+            if (channel.toLowerCase() !== req.user.channel) {
+                return res.json({
+                    status: 2,
+                    reason: `Invalid Request channel ${channel}`
+                })
+
+            }
+
+            let referral = await Inf.findOne({where: {code}})
+            if (referral) {
+                if (referral.surflineNumber === subscriberNumber) {
+                    return res.json({
+                        status: 2,
+                        reason: 'Invalid Request. Both referral and referred must be unique'
+                    })
+
+                }
+
+                let activatedToday = false;
+
+                let getAcctInfo = await getReferredAcctInfo(subscriberNumber);
+
+                if (getAcctInfo && getAcctInfo.success) {
+
+                    let {status, activation_date} = getAcctInfo;
+                    if (status === 'A') {
+                        let today = moment().format("YYYYMMDDHHmmss");
+                        if (today.substr(0, 8) !== activation_date.toString().substr(0, 8)) {
+                            return res.json({
+                                status: 2,
+                                reason: `Invalid Request. ${subscriberNumber} is not a newly registered sim`
+                            })
+
+                        }
+                        activatedToday = true;
+
+                    } else {
+                        return res.json({
+                            status: 2,
+                            reason: `Invalid Request. ${subscriberNumber} is not ACTIVE`
+                        })
+                    }
+
+
+                }
+
+                if (activatedToday) {
+
+                    let discountReferral = "ignore";
+
+                    await sequelize.transaction(async (t) => {
+
+                        await referral.createReferred_Inf({
+                            msisdn: subscriberNumber,
+                            channel: channel,
+                        }, {transaction: t});
+                        referral.code_status = "ACTIVE";
+                        referral.NumbOfActivatedRefs = referral.NumbOfActivatedRefs + 1
+                        await referral.save({transaction: t});
+                    })
+
+                    if (await notifyIN(subscriberNumber, referral.surflineNumber, code, discountReferral)) {
+                        res.json({status: 0, reason: "success"})
+                    } else {
+                        res.json({
+                            status: 1,
+                            reason: "System failure"
+                        })
+
+                    }
+
+                } else {
+                    return res.json({
+                        status: 2,
+                        reason: `Invalid Request. ${subscriberNumber} is not a newly registered sim`
+                    })
+
+                }
+
+
+            } else {
+                return res.json({
+                    status: 2,
+                    reason: `Invalid Code ${code}`
+                })
+
+            }
+
+
+        } catch (error) {
+            console.log(error)
+            let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique")?`${subscriberNumber} already activated`:"System Error"
+            res.json({
+                status: 1,
+                reason: message
+            })
+        }
+
+    } else {
+        return next()
+    }
+
+}
+
+
 function generateRandom() {
     const STRING = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
     const length = STRING.length;
@@ -577,6 +719,7 @@ function generateRandom() {
     return code;
 
 }
+
 
 async function getReferredAcctInfo(msisdn) {
     try {

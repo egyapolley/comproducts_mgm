@@ -9,6 +9,9 @@ const Referral = require("./models/sql_models").Referral;
 const Voucher_Code = require("./models/sql_models").Voucher_Code;
 const Referred = require("./models/sql_models").Referred;
 
+const Inf = require("./models/sql_models_Influencers").Referral
+const Inf_Referred = require("./models/sql_models_Influencers").Referred
+
 
 require("dotenv").config();
 
@@ -25,6 +28,9 @@ mongoose.connect("mongodb://localhost/comOffer_MGM", {
 
     Referred.belongsTo(Voucher_Code, {constraints: true, onDelete: "CASCADE"});
     Voucher_Code.hasMany(Referred);
+
+    Inf_Referred.belongsTo(Inf,{constraints: true, onDelete: "CASCADE"})
+    Inf.hasMany(Inf_Referred)
 
     sequelize.sync({
 

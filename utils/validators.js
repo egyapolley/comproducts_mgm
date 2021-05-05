@@ -83,5 +83,71 @@ module.exports = {
     },
 
 
+    //Influencers
+
+    validateGetCode_Inf: (body) => {
+
+        const schema = Joi.object({
+            subscriberNumber: Joi.string()
+                .length(12)
+                .alphanum()
+                .regex(/^233.+/)
+                .messages({"string.pattern.base": "subscriberNumber must start with 233"}),
+            firstName: Joi.string()
+                .alphanum()
+                .required()
+                .min(4),
+            lastName: Joi.string()
+                .alphanum()
+                .required()
+                .min(4),
+            code: Joi.string()
+                .min(4)
+                .max(12)
+                .alphanum()
+                .regex(/0/)
+                .lowercase()
+                .required()
+                .messages({"string.pattern.base": "code must contain the digit '0' "}),
+            channel: Joi.string()
+                .alphanum()
+                .required()
+                .min(4)
+        });
+
+        return schema.validate(body)
+
+
+    },
+    validateRedeemCode_Inf: (body) => {
+
+        const schema = Joi.object({
+            subscriberNumber: Joi.string()
+                .length(12)
+                .alphanum()
+                .regex(/^233.+/)
+                .required()
+                .messages({"string.pattern.base": "subscriberNumber must start with 233"}),
+
+            channel: Joi.string()
+                .alphanum()
+                .required()
+                .min(4),
+
+            code: Joi.string()
+                .alphanum()
+                .min(4)
+                .max(12)
+                .trim()
+                .lowercase()
+                .required()
+        });
+
+        return schema.validate(body)
+
+
+    },
+
+
 }
 
