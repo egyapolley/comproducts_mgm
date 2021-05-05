@@ -104,12 +104,6 @@ router.get("/code", passport.authenticate('basic', {
                                     [Op.gte]: now
                                 },
                             },
-                            {
-                                NumbOfActivatedRefs: {
-                                    [Op.lt]: 2
-
-                                }
-                            }
                         ]
                     }
                 });
@@ -284,7 +278,6 @@ router.post("/code", passport.authenticate('basic', {session: false}), redeemInf
                     })
                 }
 
-
             }
 
             if (activatedToday) {
@@ -372,24 +365,13 @@ router.get("/codeinfo", passport.authenticate('basic', {
             finalCodeInfo.referral = codedb.referral.msisdn;
             finalCodeInfo.referreds = "";
             finalCodeInfo.status = codedb.status === 'INACTIVE' && moment().isSameOrAfter(moment(codedb.date_expiry)) ? "EXPIRED" : codedb.status;
-
-            if (codedb.referreds.length > 0) {
-                const referredString = []
-                codedb.referreds.forEach(function (referred) {
-                    let temp = `${referred.msisdn}`;
-                    referredString.push(temp)
-                })
-                finalCodeInfo.referreds = referredString.join(',&nbsp;&nbsp;')
-
-            }
+            finalCodeInfo.referreds =codedb.NumbOfActivatedRefs;
 
             return res.json({
                 status: 0,
                 reason: "success",
                 data: finalCodeInfo
             })
-
-
         }
 
         return res.json({
