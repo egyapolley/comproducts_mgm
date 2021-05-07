@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="af55e432-3c7f-41af-9f37-9863d0422595" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/validators.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/validators.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +42,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/models" />
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
+    <property name="settings.editor.selected.configurable" value="preferences.updates" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -102,6 +104,11 @@
       <workItem from="1620048244804" duration="529000" />
       <workItem from="1620114016513" duration="7345000" />
       <workItem from="1620210378882" duration="23630000" />
+      <workItem from="1620295814773" duration="5000" />
+      <workItem from="1620297886059" duration="72000" />
+      <workItem from="1620298037593" duration="99000" />
+      <workItem from="1620299104202" duration="11427000" />
+      <workItem from="1620377899312" duration="1587000" />
     </task>
     <task id="LOCAL-00001" summary="Updated Get code to check account status First">
       <created>1608227910499</created>
@@ -117,7 +124,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608291407155</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Get Acct info for Referral">
+      <created>1620258685105</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1620258685105</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

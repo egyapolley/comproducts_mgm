@@ -89,19 +89,23 @@ module.exports = {
 
         const schema = Joi.object({
             subscriberNumber: Joi.string()
+                .trim()
                 .length(12)
                 .alphanum()
                 .regex(/^233.+/)
                 .messages({"string.pattern.base": "subscriberNumber must start with 233"}),
             firstName: Joi.string()
+                .trim()
                 .alphanum()
                 .required()
                 .min(4),
             lastName: Joi.string()
+                .trim()
                 .alphanum()
                 .required()
                 .min(4),
             code: Joi.string()
+                .trim()
                 .min(4)
                 .max(12)
                 .alphanum()
@@ -110,6 +114,7 @@ module.exports = {
                 .required()
                 .messages({"string.pattern.base": "code must contain the digit '0' "}),
             channel: Joi.string()
+                .trim()
                 .alphanum()
                 .required()
                 .min(4)
@@ -123,6 +128,7 @@ module.exports = {
 
         const schema = Joi.object({
             subscriberNumber: Joi.string()
+                .trim()
                 .length(12)
                 .alphanum()
                 .regex(/^233.+/)
@@ -130,6 +136,7 @@ module.exports = {
                 .messages({"string.pattern.base": "subscriberNumber must start with 233"}),
 
             channel: Joi.string()
+                .trim()
                 .alphanum()
                 .required()
                 .min(4),

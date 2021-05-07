@@ -291,7 +291,7 @@ router.post("/code", passport.authenticate('basic', {session: false}), redeemInf
                         channel: channel,
                     }, {transaction: t});
                     voucherCode.status = "ACTIVE";
-                    voucherCode.NumbOfActivatedRefs = voucherCode.NumbOfActivatedRefs +1
+                    voucherCode.NumbOfActivatedRefs = voucherCode.NumbOfActivatedRefs + 1
                     await voucherCode.save({transaction: t});
                 })
 
@@ -322,7 +322,6 @@ router.post("/code", passport.authenticate('basic', {session: false}), redeemInf
                 reason: `Invalid voucher code ${code}`
             })
         }
-
 
     } catch (error) {
         console.log(error);
@@ -365,7 +364,7 @@ router.get("/codeinfo", passport.authenticate('basic', {
             finalCodeInfo.referral = codedb.referral.msisdn;
             finalCodeInfo.referreds = "";
             finalCodeInfo.status = codedb.status === 'INACTIVE' && moment().isSameOrAfter(moment(codedb.date_expiry)) ? "EXPIRED" : codedb.status;
-            finalCodeInfo.referreds =codedb.NumbOfActivatedRefs;
+            finalCodeInfo.referreds = codedb.NumbOfActivatedRefs;
 
             return res.json({
                 status: 0,
@@ -486,13 +485,13 @@ router.post("/user", async (req, res) => {
 
 //Influences Routes
 
-router.get("/code_inf", passport.authenticate('basic', {
+router.post("/code_inf", passport.authenticate('basic', {
     session: false
 }), async (req, res) => {
-    const {code, firstName, lastName, channel, subscriberNumber} = req.query;
+    const {code, firstName, lastName, channel, subscriberNumber} = req.body;
     try {
 
-        const {error} = validator.validateGetCode_Inf(req.query);
+        const {error} = validator.validateGetCode_Inf(req.body);
         if (error) {
             return res.json({
                 status: 2,
@@ -510,7 +509,7 @@ router.get("/code_inf", passport.authenticate('basic', {
         if (referral) {
             return res.json({
                 status: 1,
-                message: `Code Already assigned`,
+                reason: `Code Already assigned`,
                 referral
             })
 
@@ -524,7 +523,7 @@ router.get("/code_inf", passport.authenticate('basic', {
             if (referral2) {
                 return res.json({
                     status: 0,
-                    message: "success",
+                    reason: "Code successfully assigned",
                     referral: referral2
                 })
             }
@@ -534,7 +533,7 @@ router.get("/code_inf", passport.authenticate('basic', {
 
     } catch (error) {
         console.log(error);
-        let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique")?`${subscriberNumber} already assigned`:"System Error"
+        let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique") ? `${subscriberNumber} already assigned` : "System Error"
         res.json({
             status: 1,
             reason: message
@@ -545,14 +544,20 @@ router.get("/code_inf", passport.authenticate('basic', {
 
 });
 
-router.get("/all_inf",  passport.authenticate('basic', {
+router.get("/all_inf", passport.authenticate('basic', {
     session: false
-}),async (req, res) => {
+}), async (req, res) => {
     try {
-        const referrals = await Inf.findAll({})
+        let referrals = await Inf.findAll({order: [['NumbOfActivatedRefs', 'DESC']],raw:true})
         if (referrals) {
-            if (referrals.length > 0 ){
-                referrals.sort((a,b) =>a.NumbOfActivatedRefs - b.NumbOfActivatedRefs)
+            if (referrals.length > 0) {
+
+                referrals = referrals.map(item =>{
+                    item.createdAt = moment(item.createdAt).format("DD-MM-YYYY")
+                    return item
+
+                })
+
             }
             res.json({
                 status: 0,
@@ -563,8 +568,8 @@ router.get("/all_inf",  passport.authenticate('basic', {
     } catch (error) {
         console.log(error)
         res.json({
-            status:1,
-            reason:"System failure"
+            status: 1,
+            reason: "System failure"
         })
     }
 })
@@ -675,7 +680,7 @@ async function redeemInf(req, res, next) {
 
         } catch (error) {
             console.log(error)
-            let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique")?`${subscriberNumber} already activated`:"System Error"
+            let message = error && error.errors[0] && error.errors[0].message && error && error.errors[0] && error.errors[0].message.includes("unique") ? `${subscriberNumber} already activated` : "System Error"
             res.json({
                 status: 1,
                 reason: message
