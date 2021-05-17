@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="af55e432-3c7f-41af-9f37-9863d0422595" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/validators.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/validators.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/sql_database.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/sql_database.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +106,8 @@
       <workItem from="1620297886059" duration="72000" />
       <workItem from="1620298037593" duration="99000" />
       <workItem from="1620299104202" duration="11427000" />
-      <workItem from="1620377899312" duration="1587000" />
+      <workItem from="1620377899312" duration="2218000" />
+      <workItem from="1621274754502" duration="1503000" />
     </task>
     <task id="LOCAL-00001" summary="Updated Get code to check account status First">
       <created>1608227910499</created>
@@ -131,7 +130,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620258685105</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="MGM Tweak and Affiliate Tool">
+      <created>1620385801209</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1620385801209</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,7 +148,8 @@
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="Updated Get code to check account status First" />
     <MESSAGE value="Get Acct info for Referral" />
-    <option name="LAST_COMMIT_MESSAGE" value="Get Acct info for Referral" />
+    <MESSAGE value="MGM Tweak and Affiliate Tool" />
+    <option name="LAST_COMMIT_MESSAGE" value="MGM Tweak and Affiliate Tool" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
