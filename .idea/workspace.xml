@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="af55e432-3c7f-41af-9f37-9863d0422595" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/sql_database.js" beforeDir="false" afterPath="$PROJECT_DIR$/utils/sql_database.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
