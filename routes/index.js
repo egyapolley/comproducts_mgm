@@ -140,10 +140,10 @@ router.get("/code", passport.authenticate('basic', {
                 })
 
                 finalcode = createCode.code;
-                code_expiry = createCode.date_expiry;
+               // code_expiry = createCode.date_expiry;
             }
 
-            let smsContent = `Your Code is ${finalcode} and is valid until ${moment(code_expiry).format('DD-MM-YYYY HH:mm:ss')}. Share this code with two of your friends to enjoy 50GHC CASH DISCOUNT when they buy a Surfline device with this code`;
+            let smsContent = `Your Code is ${finalcode} and valid for 30 days. Share with friends & family to activate a device now. They will enjoy 50% bonus on all recharges for the next 3 months`;
             let to_msisdn = result.contact;
             const url = "http://api.hubtel.com/v1/messages/";
 
